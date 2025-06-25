@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: "https://task-management-web-application-backend.onrender.com" || 'http://localhost:10000/api',
+  baseURL: "https://task-management-web-application-backend.onrender.com/api" || 'http://localhost:10000/api',
   withCredentials: true,
 });
 
