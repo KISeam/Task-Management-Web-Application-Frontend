@@ -134,7 +134,7 @@ const Main = () => {
                     </div>
                     <div className="dropdown-content mt-3 p-2 shadow bg-white text-black rounded-box w-52">
                       <ul className="menu menu-sm w-full">
-                        <li className="hover:bg-gray-200">
+                        <li className="hover:bg-gray-00">
                           <button
                             onClick={handleLogout}
                             className="text-base text-left"
@@ -142,7 +142,7 @@ const Main = () => {
                             Logout
                           </button>
                         </li>
-                        <li className="hover:bg-gray-200">
+                        <li className="hover:bg-gray-00">
                           <Link to="/resetPassword" className="text-base">
                             Reset Password
                           </Link>
@@ -153,7 +153,7 @@ const Main = () => {
                 ) : (
                   <Link
                     to="/login"
-                    className="btn bg-[#60E5AE] hover:bg-[#4ed8a0] text-white font-semibold px-5 py-2 rounded"
+                    className="btn bg-[#60E5AE] hover:bg-[#4ed8a0] text-black font-semibold px-5 py-2 rounded"
                   >
                     Login
                   </Link>
