@@ -18,43 +18,44 @@ const ResetPassword = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!email || !oldPassword || !newPassword || !confirmPassword) {
-      setMessage("Please fill in all fields.");
-      return;
-    }
+  if (!email || !oldPassword || !newPassword || !confirmPassword) {
+    setMessage("Please fill in all fields.");
+    return;
+  }
 
-    if (newPassword !== confirmPassword) {
-      setMessage("New passwords do not match.");
-      return;
-    }
+  if (newPassword !== confirmPassword) {
+    setMessage("New passwords do not match.");
+    return;
+  }
 
-    try {
-      setLoading(true);
-      setMessage("");
+  try {
+    setLoading(true);
+    setMessage("");
 
-      const response = await api.post("/resetPassword", {
-        email,
-        oldPassword,
-        newPassword,
-      });
+    const response = await api.post("/resetPassword", { // Ensure endpoint matches backend
+      email,
+      oldPassword,
+      newPassword,
+    });
 
-      setMessage(response.data.message || "Password reset successful.");
+    setMessage(response.data.message || "Password reset successful.");
 
-      navigate("/dashboard");
-    } catch (error) {
-      setMessage(
-        error.response?.data?.message || "An error occurred while resetting the password."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    navigate("/dashboard");
+  } catch (error) {
+    setMessage(
+      error.response?.data?.message ||
+        "An error occurred while resetting the password."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="bg-[#fafafa] min-h-screen">
-      <div className="relative lg:h-screen overflow-hidden">
+      <div className="relative h-screen overflow-hidden">
         <img src={headerImg} alt="Header" className="w-full" />
 
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11/12 p-6 bg-white rounded-3xl shadow-2xl py-12">
@@ -70,7 +71,9 @@ const ResetPassword = () => {
           </p>
 
           {message && (
-            <p className="text-center text-red-500 font-medium mb-4">{message}</p>
+            <p className="text-center text-red-500 font-medium mb-4">
+              {message}
+            </p>
           )}
           {loading && (
             <p className="text-center text-gray-500 font-medium mb-4">
@@ -79,12 +82,14 @@ const ResetPassword = () => {
           )}
 
           <form
-            className="flex flex-col items-center space-y-4 w-150 mx-auto"
+            className="flex flex-col items-center space-y-4 md:w-150 mx-auto"
             onSubmit={handleSubmit}
           >
             {/* Email */}
             <div className="space-y-2.5 w-full">
-              <p className="text-start text-black font-semibold">Email Address</p>
+              <p className="text-start text-black font-semibold">
+                Email Address
+              </p>
               <input
                 type="email"
                 placeholder="abcd@gmail.com"
@@ -96,7 +101,9 @@ const ResetPassword = () => {
 
             {/* Old Password */}
             <div className="space-y-2.5 w-full">
-              <p className="text-start text-black font-semibold">Old Password</p>
+              <p className="text-start text-black font-semibold">
+                Old Password
+              </p>
               <div className="flex items-center justify-between p-2.5 px-5 border border-gray-300 rounded-lg">
                 <input
                   type={showOldPassword ? "text" : "password"}
@@ -120,7 +127,9 @@ const ResetPassword = () => {
 
             {/* New Password */}
             <div className="space-y-2.5 w-full">
-              <p className="text-start text-black font-semibold">New Password</p>
+              <p className="text-start text-black font-semibold">
+                New Password
+              </p>
               <div className="flex items-center justify-between p-2.5 px-5 border border-gray-300 rounded-lg">
                 <input
                   type={showNewPassword ? "text" : "password"}
@@ -144,7 +153,9 @@ const ResetPassword = () => {
 
             {/* Confirm Password */}
             <div className="space-y-2.5 w-full">
-              <p className="text-start text-black font-semibold">Confirm Password</p>
+              <p className="text-start text-black font-semibold">
+                Confirm Password
+              </p>
               <div className="flex items-center justify-between p-2.5 px-5 border border-gray-300 rounded-lg">
                 <input
                   type={showConfirmPassword ? "text" : "password"}
@@ -169,7 +180,7 @@ const ResetPassword = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              className="bg-[#60E5AE] rounded-lg text-[#1F1F1F] px-6 py-4 w-150 cursor-pointer font-semibold hover:bg-[#4ddf9b] transition duration-300"
+              className="bg-[#60E5AE] rounded-lg text-[#1F1F1F] px-6 py-4 md:w-150 cursor-pointer font-semibold hover:bg-[#4ddf9b] transition duration-300"
               disabled={loading}
             >
               {loading ? "Resetting..." : "Reset Password"}

@@ -131,7 +131,7 @@ const Signup = () => {
 
             <form
               onSubmit={handleSubmit}
-              className="flex flex-col items-center space-y-4 w-150 mx-auto"
+              className="flex flex-col items-center space-y-4 md:w-150 mx-auto"
             >
               <div className="space-y-2.5 w-full">
                 <p className="text-start text-black font-semibold">Full Name</p>
@@ -208,7 +208,7 @@ const Signup = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`bg-[#60E5AE] rounded-lg text-[#1F1F1F] px-6 py-4 w-150 cursor-pointer font-semibold transition duration-300 ${
+                className={`bg-[#60E5AE] rounded-lg text-[#1F1F1F] px-6 py-4 md:w-150 cursor-pointer font-semibold transition duration-300 ${
                   loading
                     ? "opacity-70 cursor-not-allowed"
                     : "hover:bg-[#4ddf9b]"

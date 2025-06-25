@@ -1,86 +1,53 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import loginImg from "../../assets/images/Login_Image.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import api from "../../utils/axios";
-import { useNavigate } from "react-router-dom";
+import { TasksContext } from "../../context/TasksContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { setToken, setUser } = useContext(TasksContext);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
-    document.getElementById("password").focus(); // Focus on password field
+    document.getElementById("password").focus();
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    // Validate email and password
-    if (!email || !password) {
-      alert("Please enter both email and password.");
-      return;
-    }
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      alert("Please enter a valid email address.");
-      return;
-    }
-    if (password.length < 6) {
-      alert("Password must be at least 6 characters long.");
-      return;
-    }
-    if (password.length > 20) {
-      alert("Password must not exceed 20 characters.");
-      return;
-    }
-    if (!/^[a-zA-Z0-9!@#$%^&*()_+={}\[\]:;"'<>,.?\/\\|-]+$/.test(password)) {
-      alert(
-        "Password can only contain letters, numbers, and special characters."
-      );
-      return;
-    }
-    if (password.includes(" ")) {
-      alert("Password cannot contain spaces.");
-      return;
-    }
-    if (password === email) {
-      alert("Password cannot be the same as your email.");
-      return;
-    }
-    if (password === "password") {
-      alert(
-        "Password cannot be 'password'. Please choose a stronger password."
-      );
-      return;
-    }
-    if (password === "qwerty") {
-      alert("Password cannot be 'qwerty'. Please choose a stronger password.");
-      return;
-    }
-    if (password === "letmein") {
-      alert("Password cannot be 'letmein'. Please choose a stronger password.");
-      return;
-    }
-
     try {
-      // Send POST request to backend to authenticate the user
-      const response = await api.post("/login", {
-        email,
-        password,
-      });
+      const response = await api.post("/login", { email, password });
 
-      // Save the user data to localStorage after successful login
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-      localStorage.setItem("token", response.data.token);
+      if (response.status !== 200) {
+        throw new Error("Login failed: Invalid response status");
+      }
+
+      const { name, email: userEmail, token } = response.data;
+
+      if (!name || !userEmail || !token) {
+        throw new Error("Login failed: Invalid response data");
+      }
+
+      const userData = { name, email: userEmail, token }; // Store token along with user data
+
+      // Store user and token together in a single object
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      // Set user and token in context
+      setUser(userData);
+      setToken(token);
 
       navigate("/dashboard");
     } catch (error) {
-      console.error(error.response?.data?.message || "Login failed");
+      console.error("Login error:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "Login failed.");
 
-      alert(error.response?.data?.message || "An error occurred during login.");
+      localStorage.removeItem("user");
     }
   };
 
@@ -94,8 +61,8 @@ const Login = () => {
             className="w-full h-full object-cover"
           />
         </div>
-        <div className="lg:w-1/2 w-full">
-          <div className="lg:w-[60%] w-full py-30 lg:py-0 mx-auto">
+        <div className="lg:w-1/2 w-full py-30 lg:py-0">
+          <div className="">
             <h1 className="text-4xl font-bold text-center mb-4 text-black">
               Login
             </h1>
@@ -103,7 +70,7 @@ const Login = () => {
               Welcome Back, Please Enter Your Details to Log In.
             </p>
             <form
-              className="flex flex-col items-center space-y-4 w-full mx-auto"
+              className="flex flex-col items-center space-y-4 w-150 mx-auto"
               onSubmit={handleLogin}
             >
               <div className="space-y-2.5 w-full">

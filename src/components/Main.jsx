@@ -1,27 +1,96 @@
-import React, { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useContext } from "react";
+import { useLocation, useNavigate, Link } from "react-router-dom";
+import { TasksContext } from "../context/TasksContext";
 import headerImg from "../assets/images/ResetPassword_Image.png";
 import logoImg from "../assets/images/logo.png";
 import { LuNotepadText } from "react-icons/lu";
 import { PiSpinnerBallDuotone } from "react-icons/pi";
+import api from "../utils/axios";
 
 const Main = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const { tokens, clearToken, clearAllTokens } = useContext(TasksContext);
+  const [users, setUsers] = useState([]); // Change user to users array
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Load user from localStorage
+  // Fetch user data when tokens change
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser) {
-      setUser(storedUser);
-    }
-  }, []);
+    const fetchUserData = async () => {
+      if (!tokens.length) {
+        console.log("No tokens found, clearing user data");
+        setUsers([]);
+        localStorage.removeItem("users");
+        return;
+      }
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
-    navigate("/login");
+      setIsLoading(true);
+      setError(null);
+
+      const storedUsers = localStorage.getItem("users");
+      if (storedUsers && storedUsers !== "undefined") {
+        try {
+          const parsedUsers = JSON.parse(storedUsers);
+          if (Array.isArray(parsedUsers)) {
+            setUsers(parsedUsers);
+            setIsLoading(false);
+            return;
+          }
+        } catch (err) {
+          console.error("Invalid JSON in localStorage:", err);
+          localStorage.removeItem("users");
+        }
+      }
+
+      try {
+        const response = await api.get("/user", {
+          headers: {
+            Authorization: `Bearer ${tokens[0]}`,
+          },
+        });
+
+        if (response.data && response.data.user) {
+          const userArray = [
+            { name: response.data.user.name, email: response.data.user.email },
+          ];
+          setUsers(userArray);
+          localStorage.setItem("users", JSON.stringify(userArray));
+        } else {
+          throw new Error("Invalid user data from server");
+        }
+      } catch (err) {
+        setError(err.response?.data?.message || "Failed to fetch user data");
+        setUsers([]);
+        localStorage.removeItem("users");
+        clearAllTokens();
+        navigate("/login");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [tokens, clearAllTokens, navigate]);
+
+  const handleLogout = async () => {
+    try {
+      // Call backend logout API to clear session
+      await api.post("/logout", null, {
+        headers: {
+          Authorization: `Bearer ${tokens[0]}`, // Send token for authorization if required
+        },
+      });
+
+      // Clear frontend data
+      clearAllTokens();
+      localStorage.removeItem("users");
+      setUsers([]);
+      navigate("/login");
+    } catch (error) {
+      console.error("Error logging out:", error);
+      // Optionally, handle errors, e.g., show a message to the user
+    }
   };
 
   return (
@@ -37,7 +106,7 @@ const Main = () => {
           <div className="md:w-11/12 mx-auto">
             <div className="navbar py-8">
               <div className="navbar-start">
-                {/* Hamburger for Mobile */}
+                {/* Mobile Hamburger */}
                 <div className="dropdown">
                   <div
                     tabIndex={0}
@@ -111,15 +180,19 @@ const Main = () => {
                 </div>
               </div>
 
-              {/* User Avatar / Login */}
+              {/* User / Login */}
               <div className="navbar-end">
-                {user ? (
+                {isLoading ? (
+                  <p>Loading...</p>
+                ) : error ? (
+                  <p className="text-red-500">{error}</p>
+                ) : users.length > 0 ? (
                   <div className="dropdown dropdown-end">
                     <div className="flex items-center gap-2 cursor-pointer">
                       <div className="rounded-full w-14 h-14 overflow-hidden">
                         <img
                           alt="User Avatar"
-                          src="https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_items_boosted&w=740"
+                          src="https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -128,13 +201,13 @@ const Main = () => {
                         className="btn bg-transparent border-0 hover:bg-transparent shadow-none"
                       >
                         <p className="text-base font-medium text-nowrap">
-                          {user.name}
+                          {users[0].name} {/* Display first user's name */}
                         </p>
                       </label>
                     </div>
                     <div className="dropdown-content mt-3 p-2 shadow bg-white text-black rounded-box w-52">
                       <ul className="menu menu-sm w-full">
-                        <li className="hover:bg-gray-00">
+                        <li>
                           <button
                             onClick={handleLogout}
                             className="text-base text-left"
@@ -142,7 +215,7 @@ const Main = () => {
                             Logout
                           </button>
                         </li>
-                        <li className="hover:bg-gray-00">
+                        <li>
                           <Link to="/resetPassword" className="text-base">
                             Reset Password
                           </Link>
@@ -161,11 +234,15 @@ const Main = () => {
               </div>
             </div>
 
-            {/* Welcome text */}
+            {/* Welcome Message */}
             <div className="w-11/12 mx-auto md:w-full hidden lg:block">
               <div className="mt-8">
                 <p className="text-lg md:text-2xl font-semibold text-[#60E5AE] mb-3">
-                  {user ? `Hi ${user.name}` : "Welcome!"}
+                  {isLoading
+                    ? "Loading..."
+                    : users.length > 0
+                    ? `Hi ${users[0].name}`
+                    : "Welcome!"}
                 </p>
                 <h1 className="text-2xl md:text-5xl font-semibold text-white">
                   Welcome to Your Dashboard
