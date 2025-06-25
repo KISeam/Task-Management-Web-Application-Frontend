@@ -11,6 +11,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { setToken, setUser } = useContext(TasksContext);
+  const [loading, setLoading] = useState(false);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -19,6 +20,7 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       const response = await api.post("/login", { email, password });
@@ -42,12 +44,14 @@ const Login = () => {
       setUser(userData);
       setToken(token);
 
+      setLoading(false);
       navigate("/dashboard");
     } catch (error) {
       console.error("Login error:", error.response?.data || error.message);
       alert(error.response?.data?.message || "Login failed.");
 
       localStorage.removeItem("user");
+      setLoading(false);
     }
   };
 
@@ -128,9 +132,21 @@ const Login = () => {
 
               <button
                 type="submit"
-                className="bg-[#60E5AE] rounded-lg text-[#1F1F1F] px-6 py-4 w-full cursor-pointer font-semibold hover:bg-[#4ddf9b] transition duration-300"
+                disabled={loading}
+                className={`bg-[#60E5AE] rounded-lg text-[#1F1F1F] px-6 py-4 w-full cursor-pointer font-semibold transition duration-300 ${
+                  loading
+                    ? "opacity-70 cursor-not-allowed"
+                    : "hover:bg-[#4ddf9b]"
+                }`}
               >
-                Login
+                {loading ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                    <span>Logging In...</span>
+                  </div>
+                ) : (
+                  "Login"
+                )}
               </button>
             </form>
 
