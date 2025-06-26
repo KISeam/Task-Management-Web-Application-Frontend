@@ -84,6 +84,7 @@ const Main = () => {
 
       // Clear frontend data
       clearAllTokens();
+      localStorage.removeItem("user");
       localStorage.removeItem("users");
       setUsers([]);
       navigate("/login");
