@@ -136,12 +136,12 @@ const Main = () => {
                         <p>Task list</p>
                       </div>
                     </li>
-                    <li>
+                    {/* <li>
                       <div className="text-base flex items-center gap-2">
                         <PiSpinnerBallDuotone />
                         <p>Spin</p>
                       </div>
-                    </li>
+                    </li> */}
                   </ul>
                 </div>
 
@@ -167,7 +167,7 @@ const Main = () => {
                     <LuNotepadText />
                     <p className="text-lg">Task list</p>
                   </Link>
-                  <Link
+                  {/* <Link
                     to="/spin"
                     className={`text-lg flex items-center gap-2 transition duration-300 ${
                       location.pathname === "/spin"
@@ -177,7 +177,7 @@ const Main = () => {
                   >
                     <PiSpinnerBallDuotone />
                     <p className="text-lg">Spin</p>
-                  </Link>
+                  </Link> */}
                 </div>
               </div>
 
